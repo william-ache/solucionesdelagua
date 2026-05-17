@@ -64,11 +64,11 @@
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-150">
-                <thead class="bg-gray-50">
+                <thead class="bg-brand-blue text-white">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha del Abono</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Método de Pago</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Monto Abonado</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Fecha del Abono</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Método de Pago</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider">Monto Abonado</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">

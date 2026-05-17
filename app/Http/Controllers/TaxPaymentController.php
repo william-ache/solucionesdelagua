@@ -33,4 +33,47 @@ class TaxPaymentController extends Controller
 
         return redirect()->route('tax-payments.index')->with('success', 'Pago de impuesto registrado con éxito.');
     }
+
+    /**
+     * Update the specified tax payment in storage.
+     */
+    public function update(Request $request, TaxPayment $taxPayment)
+    {
+        $request->validate([
+            'tax_name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'currency' => 'required|in:USD,VES',
+            'payment_date' => 'required|date',
+            'reference_number' => 'required|string|max:100',
+        ]);
+
+        $taxPayment->update($request->all());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Impuesto actualizado con éxito.',
+                'payment' => $taxPayment
+            ]);
+        }
+
+        return redirect()->route('tax-payments.index')->with('success', 'Impuesto actualizado con éxito.');
+    }
+
+    /**
+     * Remove the specified tax payment from storage.
+     */
+    public function destroy(TaxPayment $taxPayment)
+    {
+        $taxPayment->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Impuesto eliminado con éxito.'
+            ]);
+        }
+
+        return redirect()->route('tax-payments.index')->with('success', 'Impuesto eliminado con éxito.');
+    }
 }

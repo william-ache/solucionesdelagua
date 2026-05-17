@@ -1,60 +1,126 @@
 @extends('layouts.app')
 
 @section('content')
-<div x-data="{ openCreateModal: false }">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800 font-sans">Gestión de Clientes</h1>
-            <p class="text-sm text-gray-500">Expedientes de clientes y saldo de cuenta corriente</p>
+<div x-data="clientManager">
+    <!-- Unified White Card Container -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-150 overflow-hidden mb-6">
+        <!-- Header (Title, description, and button) inside white card -->
+        <div class="p-6 border-b border-gray-150 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 font-sans">Gestión de Clientes</h1>
+                <p class="text-sm text-gray-500 mt-1">Expedientes de clientes y saldo de cuenta corriente</p>
+            </div>
+            <button @click="resetForm(); openCreateModal = true" class="bg-brand-blue hover:bg-brand-blue/90 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 shadow transition-all self-start sm:self-auto flex-shrink-0">
+                <i class="fa-solid fa-user-plus"></i> Nuevo Cliente
+            </button>
         </div>
-        <button @click="openCreateModal = true" class="bg-brand-blue hover:bg-brand-blue/90 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 shadow transition-all">
-            <i class="fa-solid fa-user-plus"></i> Nuevo Cliente
-        </button>
-    </div>
 
-    <!-- Alert Notifications -->
-    @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 shadow-sm flex items-center justify-between">
-            <span class="text-sm"><i class="fa-solid fa-circle-check mr-2"></i> {{ session('success') }}</span>
+        <!-- Datatable Controls -->
+        <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <!-- Entries Selector -->
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <span>Mostrar</span>
+                <select x-model.number="perPage" @change="currentPage = 1" class="border border-gray-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light bg-white font-medium text-gray-700">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+                <span>registros</span>
+            </div>
+            
+            <!-- Search Box -->
+            <div class="relative w-full md:w-72">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-light bg-white">
+            </div>
         </div>
-    @endif
 
-    <!-- Data Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-150 overflow-hidden">
+        <!-- Data Table -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-150">
-                <thead class="bg-gray-50">
+                <thead class="bg-brand-blue text-white">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cliente / Empresa</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">RIF / Cédula</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Teléfono</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Correo Electrónico</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Dirección</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Saldo Acreedor</th>
+                        <th @click="sort('name')" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider border-b border-blue-800 cursor-pointer select-none hover:bg-blue-800 transition-colors">
+                            <div class="flex items-center gap-1.5">
+                                Cliente / Empresa
+                                <i class="fa-solid text-[10px]" :class="sortColumn === 'name' ? (sortDirection === 'asc' ? 'fa-sort-up text-white' : 'fa-sort-down text-white') : 'fa-sort text-blue-250/30'"></i>
+                            </div>
+                        </th>
+                        <th @click="sort('document_id')" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider border-b border-blue-800 cursor-pointer select-none hover:bg-blue-800 transition-colors">
+                            <div class="flex items-center gap-1.5">
+                                RIF / Cédula
+                                <i class="fa-solid text-[10px]" :class="sortColumn === 'document_id' ? (sortDirection === 'asc' ? 'fa-sort-up text-white' : 'fa-sort-down text-white') : 'fa-sort text-blue-250/30'"></i>
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider border-b border-blue-800">Teléfono</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider border-b border-blue-800">Correo Electrónico</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider border-b border-blue-800">Dirección</th>
+                        <th @click="sort('balance')" class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider border-b border-blue-800 cursor-pointer select-none hover:bg-blue-800 transition-colors">
+                            <div class="flex items-center justify-end gap-1.5">
+                                Saldo Acreedor
+                                <i class="fa-solid text-[10px]" :class="sortColumn === 'balance' ? (sortDirection === 'asc' ? 'fa-sort-up text-white' : 'fa-sort-down text-white') : 'fa-sort text-blue-250/30'"></i>
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider border-b border-blue-800">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
-                    @forelse($clients as $client)
+                    <template x-for="client in pagedClients" :key="client.id">
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800">{{ $client->name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550">{{ $client->document_id }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550">{{ $client->phone ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550">{{ $client->email ?? '-' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ $client->address ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold {{ $client->balance > 0 ? 'text-red-500' : 'text-gray-700' }}">
-                                ${{ number_format($client->balance, 2) }}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800" x-text="client.name"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550 font-mono" x-text="client.document_id"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550" x-text="client.phone || '-'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550" x-text="client.email || '-'"></td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" x-text="client.address || '-'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold"
+                                :class="parseFloat(client.balance) > 0 ? 'text-red-500' : 'text-gray-700'"
+                                x-text="'$' + parseFloat(client.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center font-semibold">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button @click="$dispatch('open-global-detail', { model: 'client', id: client.id })" class="text-indigo-600 hover:text-indigo-900 transition-colors bg-indigo-50 hover:bg-indigo-100 p-1.5 rounded-lg" title="Ver Detalles">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button @click="openCurrentAccount(client)" class="text-emerald-600 hover:text-emerald-900 transition-colors bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg" title="Ver Cuenta Corriente">
+                                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                                    </button>
+                                    <button @click="editClient(client)" class="text-blue-600 hover:text-blue-900 transition-colors bg-blue-50 hover:bg-blue-100 p-1.5 rounded-lg" title="Editar">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button @click="deleteClient(client)" class="text-red-650 hover:text-red-900 transition-colors bg-red-50 hover:bg-red-100 p-1.5 rounded-lg" title="Eliminar">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-400">
-                                <i class="fa-solid fa-users text-4xl mb-3 block"></i> No se encontraron clientes registrados.
-                            </td>
-                        </tr>
-                    @endforelse
+                    </template>
+                    <tr x-show="filteredClients.length === 0">
+                        <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-400">
+                            <i class="fa-solid fa-users text-4xl mb-3 block"></i> No se encontraron clientes registrados.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Datatable Pagination Footer -->
+        <div class="p-4 bg-gray-50/30 border-t border-gray-150 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-sm text-gray-500">
+                Mostrando <span class="font-bold text-gray-700" x-text="filteredClients.length === 0 ? 0 : (currentPage - 1) * perPage + 1"></span> 
+                a <span class="font-bold text-gray-700" x-text="Math.min(currentPage * perPage, filteredClients.length)"></span> 
+                de <span class="font-bold text-gray-700" x-text="filteredClients.length"></span> registros
+            </div>
+            
+            <div class="flex items-center gap-1.5" x-show="totalPages > 1">
+                <button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none transition-colors">Anterior</button>
+                <template x-for="p in totalPages" :key="p">
+                    <button @click="currentPage = p" class="w-8 h-8 rounded-lg text-sm font-bold transition-all" :class="currentPage === p ? 'bg-brand-blue text-white' : 'border border-gray-300 hover:bg-gray-50 text-gray-700'" x-text="p"></button>
+                </template>
+                <button @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages" class="px-3 py-1.5 border border-gray-305 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none transition-colors">Siguiente</button>
+            </div>
         </div>
     </div>
 
@@ -66,30 +132,34 @@
                 <button @click="openCreateModal = false" class="text-white hover:text-brand-light text-xl"><i class="fa-solid fa-times"></i></button>
             </div>
             
-            <form action="{{ route('clients.store') }}" method="POST" class="p-6">
-                @csrf
+            <form @submit.prevent="submitCreateForm" class="p-6">
                 <div class="grid grid-cols-1 gap-5">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre o Razón Social</label>
-                        <input type="text" name="name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                        <input type="text" x-model="currentClient.name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                        <span class="text-red-550 text-xs mt-1" x-text="errors.name ? errors.name[0] : ''" x-show="errors.name"></span>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Identificación (RIF / Cédula)</label>
-                        <input type="text" name="document_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light" placeholder="Ej: J-12345678-9">
+                        <input type="text" x-model="currentClient.document_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light" placeholder="Ej: J-12345678-9">
+                        <span class="text-red-550 text-xs mt-1" x-text="errors.document_id ? errors.document_id[0] : ''" x-show="errors.document_id"></span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Teléfono de Contacto</label>
-                            <input type="text" name="phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            <input type="text" x-model="currentClient.phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            <span class="text-red-550 text-xs mt-1" x-text="errors.phone ? errors.phone[0] : ''" x-show="errors.phone"></span>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Correo Electrónico</label>
-                            <input type="email" name="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            <input type="email" x-model="currentClient.email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            <span class="text-red-550 text-xs mt-1" x-text="errors.email ? errors.email[0] : ''" x-show="errors.email"></span>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Dirección de Entrega / Fiscal</label>
-                        <textarea name="address" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light"></textarea>
+                        <textarea x-model="currentClient.address" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light"></textarea>
+                        <span class="text-red-550 text-xs mt-1" x-text="errors.address ? errors.address[0] : ''" x-show="errors.address"></span>
                     </div>
                 </div>
 
@@ -100,5 +170,434 @@
             </form>
         </div>
     </div>
+
+    <!-- Edit Modal (Alpine.js) -->
+    <div x-show="openEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all" @click.away="openEditModal = false">
+            <div class="bg-brand-blue p-5 text-white flex items-center justify-between">
+                <h3 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-1"></i> Editar Cliente</h3>
+                <button @click="openEditModal = false" class="text-white hover:text-brand-light text-xl"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <form @submit.prevent="submitEditForm" class="p-6">
+                <div class="grid grid-cols-1 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre o Razón Social</label>
+                        <input type="text" x-model="currentClient.name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                        <span class="text-red-550 text-xs mt-1" x-text="errors.name ? errors.name[0] : ''" x-show="errors.name"></span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Identificación (RIF / Cédula)</label>
+                        <input type="text" x-model="currentClient.document_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light" placeholder="Ej: J-12345678-9">
+                        <span class="text-red-550 text-xs mt-1" x-text="errors.document_id ? errors.document_id[0] : ''" x-show="errors.document_id"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Teléfono de Contacto</label>
+                            <input type="text" x-model="currentClient.phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            <span class="text-red-550 text-xs mt-1" x-text="errors.phone ? errors.phone[0] : ''" x-show="errors.phone"></span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Correo Electrónico</label>
+                            <input type="email" x-model="currentClient.email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                            <span class="text-red-550 text-xs mt-1" x-text="errors.email ? errors.email[0] : ''" x-show="errors.email"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Dirección de Entrega / Fiscal</label>
+                        <textarea x-model="currentClient.address" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-light"></textarea>
+                        <span class="text-red-550 text-xs mt-1" x-text="errors.address ? errors.address[0] : ''" x-show="errors.address"></span>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" @click="openEditModal = false" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">Cancelar</button>
+                    <button type="submit" class="bg-brand-blue hover:bg-brand-blue/90 text-white px-5 py-2 rounded-lg font-bold shadow transition-all">Actualizar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cuenta Corriente Modal (Alpine.js) -->
+    <div x-show="openAccountModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden transform transition-all" @click.away="openAccountModal = false">
+            <div class="bg-emerald-600 p-5 text-white flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Cuenta Corriente</h3>
+                    <p class="text-xs text-emerald-100 mt-0.5" x-text="currentClient.name + ' - RIF: ' + currentClient.document_id"></p>
+                </div>
+                <button @click="openAccountModal = false" class="text-white hover:text-emerald-100 text-xl"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 max-h-[85vh] overflow-y-auto">
+                <!-- Columna Tabla de Movimientos (2/3 de ancho en pantallas grandes) -->
+                <div class="lg:col-span-2 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-gray-700 uppercase tracking-wider text-xs"><i class="fa-solid fa-list mr-1"></i> Historial de Movimientos</h4>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-400 font-semibold uppercase block">Saldo Actual</span>
+                            <span class="text-xl font-extrabold font-mono"
+                                  :class="parseFloat(currentClient.balance) > 0 ? 'text-red-500' : 'text-emerald-600'"
+                                  x-text="'$' + parseFloat(currentClient.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Transacciones -->
+                    <div class="border border-gray-150 rounded-lg overflow-hidden bg-gray-50 flex-1">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-150 text-left">
+                                <thead class="bg-white">
+                                    <tr>
+                                        <th class="px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
+                                        <th class="px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Detalle</th>
+                                        <th class="px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
+                                        <th class="px-4 py-2.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <template x-for="t in transactions" :key="t.id">
+                                        <tr class="bg-white hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-2.5 whitespace-nowrap text-xs font-semibold text-gray-500" x-text="new Date(t.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })"></td>
+                                            <td class="px-4 py-2.5 text-xs text-gray-700" x-text="t.description"></td>
+                                            <td class="px-4 py-2.5 whitespace-nowrap">
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase"
+                                                      :class="{
+                                                          'bg-red-50 text-red-700': t.type === 'invoice',
+                                                          'bg-blue-50 text-blue-600': t.type === 'credit_note',
+                                                          'bg-emerald-50 text-emerald-700': t.type === 'payment'
+                                                      }"
+                                                      x-text="t.type === 'invoice' ? 'Factura' : (t.type === 'credit_note' ? 'N. Crédito' : 'Pago')">
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-2.5 whitespace-nowrap text-xs text-right font-bold font-mono"
+                                                :class="t.type === 'invoice' ? 'text-red-500' : 'text-emerald-600'"
+                                                x-text="(t.type === 'invoice' ? '+' : '-') + '$' + parseFloat(t.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="transactions.length === 0">
+                                        <td colspan="4" class="px-4 py-8 text-center text-xs text-gray-400">
+                                            <i class="fa-solid fa-receipt text-3xl mb-2 block"></i> Sin movimientos en cuenta corriente.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Registro Manual (1/3 de ancho) -->
+                <div class="bg-gray-50 border border-gray-150 rounded-xl p-5 flex flex-col gap-4 self-start">
+                    <h4 class="font-bold text-gray-700 uppercase tracking-wider text-xs border-b border-gray-150 pb-2 flex items-center gap-1.5"><i class="fa-solid fa-cash-register text-emerald-600"></i> Nuevo Movimiento</h4>
+                    
+                    <form @submit.prevent="submitTransactionForm" class="flex flex-col gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo de Movimiento</label>
+                            <select x-model="newTransaction.type" required class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="payment">Abono / Pago (Dinero entrante)</option>
+                                <option value="invoice">Factura / Cargo (Deuda generada)</option>
+                                <option value="credit_note">Nota de Crédito (Saldo a favor)</option>
+                            </select>
+                            <span class="text-red-550 text-[10px] mt-0.5 block" x-text="transactionErrors.type ? transactionErrors.type[0] : ''" x-show="transactionErrors.type"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Monto ($ USD)</label>
+                            <div class="relative rounded-lg shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-450 text-xs">$</span>
+                                </div>
+                                <input type="number" step="0.01" x-model="newTransaction.amount" required class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono" placeholder="0.00">
+                            </div>
+                            <span class="text-red-550 text-[10px] mt-0.5 block" x-text="transactionErrors.amount ? transactionErrors.amount[0] : ''" x-show="transactionErrors.amount"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Descripción / Concepto</label>
+                            <textarea x-model="newTransaction.description" required rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Ej: Pago de factura #101, Cargo manual por flete, etc."></textarea>
+                            <span class="text-red-550 text-[10px] mt-0.5 block" x-text="transactionErrors.description ? transactionErrors.description[0] : ''" x-show="transactionErrors.description"></span>
+                        </div>
+
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2.5 rounded-lg font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 mt-2">
+                            <i class="fa-solid fa-plus-circle"></i> Registrar Movimiento
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 px-6 py-4 flex items-center justify-end border-t border-gray-150">
+                <button type="button" @click="openAccountModal = false" class="border border-gray-300 text-gray-700 px-4 py-1.5 text-xs rounded-lg hover:bg-gray-100 transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('clientManager', () => ({
+        clients: @json($clients),
+        openCreateModal: false,
+        openEditModal: false,
+        openAccountModal: false,
+        transactions: [],
+        newTransaction: { type: 'payment', amount: '', description: '' },
+        transactionErrors: {},
+        currentClient: { id: '', name: '', document_id: '', phone: '', email: '', address: '', balance: 0 },
+        errors: {},
+        
+        // Datatable states
+        searchQuery: new URLSearchParams(window.location.search).get('search') || '',
+        perPage: 10,
+        currentPage: 1,
+        sortColumn: 'name',
+        sortDirection: 'asc',
+
+        get filteredClients() {
+            let result = this.clients || [];
+            if (this.searchQuery.trim() !== '') {
+                const query = this.searchQuery.toLowerCase().trim();
+                result = result.filter(c => 
+                    (c.name && c.name.toLowerCase().includes(query)) ||
+                    (c.document_id && c.document_id.toLowerCase().includes(query)) ||
+                    (c.phone && c.phone.toLowerCase().includes(query)) ||
+                    (c.email && c.email.toLowerCase().includes(query)) ||
+                    (c.address && c.address.toLowerCase().includes(query))
+                );
+            }
+            
+            // Sort
+            result.sort((a, b) => {
+                let valA = a[this.sortColumn] || '';
+                let valB = b[this.sortColumn] || '';
+                
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+                
+                if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
+                if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+            return result;
+        },
+
+        get pagedClients() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredClients.slice(start, start + this.perPage);
+        },
+
+        get totalPages() {
+            return Math.ceil(this.filteredClients.length / this.perPage) || 1;
+        },
+
+        sort(col) {
+            if (this.sortColumn === col) {
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortColumn = col;
+                this.sortDirection = 'asc';
+            }
+            this.currentPage = 1;
+        },
+
+        resetForm() {
+            this.currentClient = { id: '', name: '', document_id: '', phone: '', email: '', address: '', balance: 0 };
+            this.errors = {};
+            this.transactionErrors = {};
+            this.newTransaction = { type: 'payment', amount: '', description: '' };
+        },
+        submitCreateForm() {
+            this.errors = {};
+            fetch('{{ route('clients.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(this.currentClient)
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        this.errors = data.errors;
+                    } else {
+                        throw new Error(data.message || 'Error desconocido.');
+                    }
+                } else {
+                    this.clients.push(data.client);
+                    this.clients.sort((a, b) => a.name.localeCompare(b.name));
+                    this.openCreateModal = false;
+                    this.resetForm();
+                    window.Toast.fire({
+                        icon: 'success',
+                        title: 'Cliente creado con éxito'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Ocurrió un error al guardar el cliente.',
+                    confirmButtonColor: '#005293'
+                });
+            });
+        },
+        editClient(client) {
+            this.errors = {};
+            this.currentClient = { ...client };
+            this.openEditModal = true;
+        },
+        submitEditForm() {
+            this.errors = {};
+            fetch(`/clients/${this.currentClient.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(this.currentClient)
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        this.errors = data.errors;
+                    } else {
+                        throw new Error(data.message || 'Error desconocido.');
+                    }
+                } else {
+                    const idx = this.clients.findIndex(c => c.id === this.currentClient.id);
+                    if (idx !== -1) {
+                        this.clients[idx] = data.client;
+                    }
+                    this.clients.sort((a, b) => a.name.localeCompare(b.name));
+                    this.openEditModal = false;
+                    this.resetForm();
+                    window.Toast.fire({
+                        icon: 'success',
+                        title: 'Cliente actualizado con éxito'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Ocurrió un error al guardar el cliente.',
+                    confirmButtonColor: '#005293'
+                });
+            });
+        },
+        deleteClient(client) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `Vas a eliminar al cliente "${client.name}". Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#005293',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/clients/${client.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(async response => {
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Error al eliminar el cliente.');
+                        }
+                        this.clients = this.clients.filter(c => c.id !== client.id);
+                        window.Toast.fire({
+                            icon: 'success',
+                            title: 'Cliente eliminado con éxito'
+                        });
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message || 'Ocurrió un error al eliminar el cliente.',
+                            confirmButtonColor: '#005293'
+                        });
+                    });
+                }
+            });
+        },
+        openCurrentAccount(client) {
+            this.resetForm();
+            this.currentClient = { ...client };
+            this.transactions = [];
+            this.openAccountModal = true;
+            
+            fetch(`/clients/${client.id}/transactions`)
+            .then(async response => {
+                if (!response.ok) {
+                    throw new Error('Error al obtener el historial de transacciones.');
+                }
+                this.transactions = await response.json();
+            })
+            .catch(error => {
+                window.Toast.fire({
+                    icon: 'error',
+                    title: error.message || 'No se pudieron cargar los movimientos.'
+                });
+            });
+        },
+        submitTransactionForm() {
+            this.transactionErrors = {};
+            fetch(`/clients/${this.currentClient.id}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(this.newTransaction)
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        this.transactionErrors = data.errors;
+                    } else {
+                        throw new Error(data.message || 'Error desconocido.');
+                    }
+                } else {
+                    this.transactions.unshift(data.transaction);
+                    this.currentClient.balance = data.client.balance;
+                    
+                    const idx = this.clients.findIndex(c => c.id === this.currentClient.id);
+                    if (idx !== -1) {
+                        this.clients[idx] = data.client;
+                    }
+                    
+                    this.newTransaction = { type: 'payment', amount: '', description: '' };
+                    window.Toast.fire({
+                        icon: 'success',
+                        title: data.message || 'Movimiento registrado con éxito.'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Ocurrió un error al procesar el movimiento.',
+                    confirmButtonColor: '#005293'
+                });
+            });
+        }
+    }));
+});
+</script>
+@endpush

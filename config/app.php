@@ -123,4 +123,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | Dynamic application version, linked to the APP_VERSION environment key.
+    |
+    */
+    'version' => env('APP_VERSION', '1.0.0'),
+
 ];

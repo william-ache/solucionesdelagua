@@ -57,4 +57,46 @@ class CreditController extends Controller
         return redirect()->route('credits.show', $credit->id)
             ->with('success', 'El abono de pago se registró con éxito y se recalculó el saldo restante.');
     }
+
+    /**
+     * Update the specifies credit details in storage.
+     */
+    public function update(Request $request, Credit $credit)
+    {
+        $request->validate([
+            'due_date' => 'required|date',
+            'total_debt' => 'required|numeric|min:0',
+            'balance_due' => 'required|numeric|min:0',
+            'status' => 'required|in:pending,paid',
+        ]);
+
+        $credit->update($request->all());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Crédito actualizado con éxito.',
+                'credit' => $credit->load('sale')
+            ]);
+        }
+
+        return redirect()->route('credits.index')->with('success', 'Crédito actualizado con éxito.');
+    }
+
+    /**
+     * Remove the specified credit from storage.
+     */
+    public function destroy(Credit $credit)
+    {
+        $credit->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Crédito eliminado con éxito.'
+            ]);
+        }
+
+        return redirect()->route('credits.index')->with('success', 'Crédito con éxito.');
+    }
 }

@@ -26,7 +26,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-brand-blue p-6 text-center flex flex-col items-center">
             <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white mb-3 overflow-hidden p-0.5 shadow-md border border-white/20">
-                <img src="/logo.jpg" alt="Logo Soluciones del Agua" class="w-full h-full object-cover rounded-full scale-[1.10]" onerror="this.style.display='none'; document.getElementById('water-fallback').style.display='inline-flex';">
+                <img src="{{ asset('logo.jpg') }}" alt="Logo Soluciones del Agua" class="w-full h-full object-cover rounded-full scale-[1.10]" onerror="this.style.display='none'; document.getElementById('water-fallback').style.display='inline-flex';">
                 <span id="water-fallback" class="hidden items-center justify-center text-4xl text-brand-blue"><i class="fa-solid fa-water"></i></span>
             </div>
             <h1 class="text-2xl font-bold text-white">Soluciones del Agua</h1>

@@ -43,13 +43,17 @@ Route::middleware(['auth'])->group(function () {
     
     // Main Panel View
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/global-search', [DashboardController::class, 'globalSearch'])->name('global-search');
+    Route::get('/global-detail', [DashboardController::class, 'globalDetail'])->name('global-detail');
 
     // 1. Módulo de Ventas
     Route::resource('sales', SaleController::class);
     Route::resource('clients', ClientController::class);
+    Route::get('/clients/{client}/transactions', [ClientController::class, 'getTransactions'])->name('clients.transactions.index');
+    Route::post('/clients/{client}/transactions', [ClientController::class, 'storeTransaction'])->name('clients.transactions.store');
 
     // 2. Módulo de Créditos y Cobranzas
-    Route::resource('credits', CreditController::class)->only(['index', 'show']);
+    Route::resource('credits', CreditController::class);
     Route::post('/credits/{id}/payment', [CreditController::class, 'storePayment'])->name('credits.payments.store');
 
     // 3. Módulo de Divisas y Tesorería

@@ -19,7 +19,15 @@ class PayrollPaymentController extends Controller
             'payment_date' => 'required|date',
         ]);
 
-        PayrollPayment::create($request->all());
+        $payment = PayrollPayment::create($request->all());
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'payment' => $payment,
+                'message' => 'Abono de nómina registrado con éxito.'
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Abono de nómina registrado con éxito.');
     }
