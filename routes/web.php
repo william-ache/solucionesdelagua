@@ -11,6 +11,7 @@ use App\Http\Controllers\PayrollPaymentController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\CashClosureController;
 use App\Http\Controllers\ProductController;
@@ -54,6 +55,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('clients', ClientController::class);
     Route::get('/clients/{client}/transactions', [ClientController::class, 'getTransactions'])->name('clients.transactions.index');
     Route::post('/clients/{client}/transactions', [ClientController::class, 'storeTransaction'])->name('clients.transactions.store');
+
+    // 5.5 Proveedores
+    Route::resource('suppliers', SupplierController::class);
+    Route::get('/suppliers/{supplier}/transactions', [SupplierController::class, 'getTransactions'])->name('suppliers.transactions.index');
+    Route::post('/suppliers/{supplier}/transactions', [SupplierController::class, 'storeTransaction'])->name('suppliers.transactions.store');
 
     // 2. Módulo de Créditos y Cobranzas
     Route::resource('credits', CreditController::class);

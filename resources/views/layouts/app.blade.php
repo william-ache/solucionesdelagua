@@ -706,117 +706,100 @@
                             @endif
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('products.index') }}" 
-                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('products.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
-                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Inventario (Stocks)">
-                            <i class="fa-solid fa-boxes-stacked w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Inventario / Stocks</span>
-                            @if (Route::is('products.*'))
-                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
-                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
-                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
-                                </div>
-                            @endif
-                        </a>
+                    <!-- MENÚ AGRUPADO: DIRECTORIO COMERCIAL -->
+                    <li x-data="{ openDirectorio: {{ Route::is('clients.*') || Route::is('suppliers.*') ? 'true' : 'false' }} }">
+                        <button @click="openDirectorio = !openDirectorio; if(sidebarCollapsed) sidebarCollapsed = false" 
+                                class="w-full flex items-center justify-between py-3 transition-all duration-200 text-gray-200 hover:bg-white/5"
+                                :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
+                                title="Directorio Comercial">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-address-book w-5 text-center flex-shrink-0" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
+                                <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium">Directorio Comercial</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform duration-300" :class="openDirectorio ? 'rotate-180' : ''" x-show="!sidebarCollapsed"></i>
+                        </button>
+                        
+                        <ul x-show="openDirectorio" x-collapse.duration.300ms class="bg-blue-950/30 border-y border-white/5 py-1" :class="sidebarCollapsed ? 'hidden' : 'block'" x-cloak>
+                            <li>
+                                <a href="{{ route('clients.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('clients.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Clientes">
+                                    <i class="fa-solid fa-users w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Clientes</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('suppliers.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('suppliers.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Proveedores">
+                                    <i class="fa-solid fa-truck-fast w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Proveedores</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
-                    <li>
-                        <a href="{{ route('clients.index') }}" 
-                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('clients.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
-                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Clientes">
-                            <i class="fa-solid fa-users w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Clientes</span>
-                            @if (Route::is('clients.*'))
-                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
-                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
-                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
-                                </div>
-                            @endif
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('sales.index') }}" 
-                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('sales.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
-                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Ventas">
-                            <i class="fa-solid fa-cart-shopping w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Ventas</span>
-                            @if (Route::is('sales.*'))
-                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
-                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
-                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
-                                </div>
-                            @endif
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('credits.index') }}" 
-                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('credits.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
-                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Créditos">
-                            <i class="fa-solid fa-hand-holding-dollar w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Créditos</span>
-                            @if (Route::is('credits.*'))
-                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
-                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
-                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
-                                </div>
-                            @endif
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('tax-payments.index') }}" 
-                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('tax-payments.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
-                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Impuestos">
-                            <i class="fa-solid fa-percent w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Impuestos</span>
-                            @if (Route::is('tax-payments.*'))
-                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
-                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
-                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
-                                </div>
-                            @endif
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('employees.index') }}" 
-                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('employees.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
-                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Nómina">
-                            <i class="fa-solid fa-user-tie w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Nómina</span>
-                            @if (Route::is('employees.*'))
-                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
-                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
-                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
-                                </div>
-                            @endif
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('expenses.index') }}" 
-                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('expenses.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
-                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Gastos Operativos">
-                            <i class="fa-solid fa-wallet w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Gastos Operativos</span>
-                            @if (Route::is('expenses.*'))
-                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
-                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
-                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
-                                </div>
-                            @endif
-                        </a>
+                    <!-- MENÚ AGRUPADO: GESTIÓN -->
+                    <li x-data="{ openGestion: {{ Route::is('sales.*') || Route::is('credits.*') || Route::is('tax-payments.*') || Route::is('employees.*') || Route::is('payroll-payments.*') || Route::is('expenses.*') || Route::is('products.*') ? 'true' : 'false' }} }">
+                        <button @click="openGestion = !openGestion; if(sidebarCollapsed) sidebarCollapsed = false" 
+                                class="w-full flex items-center justify-between py-3 transition-all duration-200 text-gray-200 hover:bg-white/5"
+                                :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
+                                title="Gestión">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-briefcase w-5 text-center flex-shrink-0" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
+                                <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium">Gestión Operativa</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform duration-300" :class="openGestion ? 'rotate-180' : ''" x-show="!sidebarCollapsed"></i>
+                        </button>
+                        
+                        <ul x-show="openGestion" x-collapse.duration.300ms class="bg-blue-950/30 border-y border-white/5 py-1" :class="sidebarCollapsed ? 'hidden' : 'block'" x-cloak>
+                            <li>
+                                <a href="{{ route('products.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('products.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Inventario">
+                                    <i class="fa-solid fa-boxes-stacked w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Inventario</span>
+                                </a>
+                            </li>
+                                <a href="{{ route('sales.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('sales.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Ventas">
+                                    <i class="fa-solid fa-cart-shopping w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Ventas</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('credits.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('credits.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Créditos">
+                                    <i class="fa-solid fa-hand-holding-dollar w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Créditos</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('tax-payments.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('tax-payments.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Impuestos">
+                                    <i class="fa-solid fa-percent w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Impuestos</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('employees.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('employees.*') || Route::is('payroll-payments.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Nómina">
+                                    <i class="fa-solid fa-user-tie w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Nómina</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('expenses.index') }}" 
+                                   class="flex items-center gap-3 py-2.5 transition-all duration-200 {{ Route::is('expenses.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }} pl-11"
+                                   title="Gastos Operativos">
+                                    <i class="fa-solid fa-wallet w-4 text-center flex-shrink-0 relative z-10 text-xs text-brand-light"></i>
+                                    <span class="font-sans text-[13px] font-medium relative z-10">Gastos Operativos</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li>
                         <a href="{{ route('cash-closures.history') }}" 
