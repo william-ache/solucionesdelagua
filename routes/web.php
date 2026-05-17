@@ -11,6 +11,7 @@ use App\Http\Controllers\PayrollPaymentController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\SystemLogController;
 
 // Public and Auth Landing
 Route::get('/', function () {
@@ -69,5 +70,8 @@ Route::middleware(['auth'])->group(function () {
     // 6. Módulo de Gastos Operativos (Categorías y Gastos)
     Route::resource('expense-categories', ExpenseCategoryController::class);
     Route::resource('expenses', ExpenseController::class);
+
+    // 7. System Logs (Read Only)
+    Route::get('/system-logs', [SystemLogController::class, 'index'])->name('system-logs.index');
 
 });

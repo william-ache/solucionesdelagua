@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class ClientController extends Controller
 {
@@ -30,6 +31,8 @@ class ClientController extends Controller
         ]);
 
         $client = Client::create($request->all());
+
+        SystemLogService::log('Crear', 'Clientes', "Se ha registrado un nuevo cliente: {$client->name} (Documento: {$client->document_id})");
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -65,6 +68,8 @@ class ClientController extends Controller
 
         $client->update($request->all());
 
+        SystemLogService::log('Editar', 'Clientes', "Se ha actualizado la información del cliente: {$client->name} (ID: {$client->id})");
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -90,7 +95,10 @@ class ClientController extends Controller
                 ], 422);
             }
 
+            $clientName = $client->name;
             $client->delete();
+
+            SystemLogService::log('Eliminar', 'Clientes', "Se ha eliminado del sistema el cliente: {$clientName}");
 
             return response()->json([
                 'success' => true,
@@ -139,6 +147,8 @@ class ClientController extends Controller
         }
 
         $client->refresh();
+
+        SystemLogService::log('Crear Transacción', 'Clientes', "Se ha registrado una transacción (" . __($request->type) . ") por {$request->amount} Bs para el cliente: {$client->name}");
 
         return response()->json([
             'success' => true,

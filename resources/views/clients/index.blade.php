@@ -28,13 +28,31 @@
                 </select>
                 <span>registros</span>
             </div>
-            
-            <!-- Search Box -->
-            <div class="relative w-full md:w-72">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-light bg-white">
+            <!-- Search & Actions -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <!-- Export Buttons -->
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
+                    <button @click="window.exportToExcel(filteredClients, ['name', 'document_id', 'phone', 'email', 'address', 'balance'], ['Nombre', 'RIF / Cédula', 'Teléfono', 'Correo', 'Dirección', 'Saldo Acreedor'], 'Clientes_SolucionesDelAgua')"
+                            type="button"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-gray-300 hover:border-emerald-300 rounded-lg text-xs font-bold transition-all shadow-sm select-none"
+                            title="Exportar registros filtrados a Excel (CSV)">
+                        <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
+                    </button>
+                    <button @click="window.exportToPDF(filteredClients, ['name', 'document_id', 'phone', 'email', 'address', 'balance'], ['Nombre', 'RIF / Cédula', 'Teléfono', 'Correo', 'Dirección', 'Saldo Acreedor'], 'Reporte de Clientes')"
+                            type="button"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-650 hover:text-red-700 border border-gray-300 hover:border-red-300 rounded-lg text-xs font-bold transition-all shadow-sm select-none"
+                            title="Generar Reporte PDF para imprimir">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i> PDF
+                    </button>
+                </div>
+
+                <!-- Search Box -->
+                <div class="relative w-full sm:w-64 md:w-72">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-light bg-white text-gray-750">
+                </div>
             </div>
         </div>
 
@@ -75,9 +93,11 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550" x-text="client.phone || '-'"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550" x-text="client.email || '-'"></td>
                             <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" x-text="client.address || '-'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold"
-                                :class="parseFloat(client.balance) > 0 ? 'text-red-500' : 'text-gray-700'"
-                                x-text="'$' + parseFloat(client.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                            <td class="px-6 py-4 whitespace-nowrap font-mono text-right">
+                                <span class="px-2.5 py-1 rounded-md text-[11px] font-bold border inline-block min-w-[70px] text-center"
+                                      :class="parseFloat(client.balance) > 0 ? 'bg-red-50 text-red-700 border-red-200/60' : 'bg-green-50 text-green-700 border-green-200/60'"
+                                      x-text="'$' + parseFloat(client.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-center font-semibold">
                                 <div class="flex items-center justify-center gap-2">
@@ -125,8 +145,8 @@
     </div>
 
     <!-- Create Modal (Alpine.js) -->
-    <div x-show="openCreateModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all" @click.away="openCreateModal = false">
+    <div x-show="openCreateModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-start justify-center p-4 pt-24 pb-6 overflow-y-auto" x-cloak>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all my-2" @click.away="openCreateModal = false">
             <div class="bg-brand-blue p-5 text-white flex items-center justify-between">
                 <h3 class="text-lg font-bold"><i class="fa-solid fa-user-plus mr-1"></i> Registrar Nuevo Cliente</h3>
                 <button @click="openCreateModal = false" class="text-white hover:text-brand-light text-xl"><i class="fa-solid fa-times"></i></button>
@@ -172,8 +192,8 @@
     </div>
 
     <!-- Edit Modal (Alpine.js) -->
-    <div x-show="openEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all" @click.away="openEditModal = false">
+    <div x-show="openEditModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-start justify-center p-4 pt-24 pb-6 overflow-y-auto" x-cloak>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all my-2" @click.away="openEditModal = false">
             <div class="bg-brand-blue p-5 text-white flex items-center justify-between">
                 <h3 class="text-lg font-bold"><i class="fa-solid fa-pen-to-square mr-1"></i> Editar Cliente</h3>
                 <button @click="openEditModal = false" class="text-white hover:text-brand-light text-xl"><i class="fa-solid fa-times"></i></button>
@@ -219,8 +239,8 @@
     </div>
 
     <!-- Cuenta Corriente Modal (Alpine.js) -->
-    <div x-show="openAccountModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden transform transition-all" @click.away="openAccountModal = false">
+    <div x-show="openAccountModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-start justify-center p-4 pt-24 pb-6 overflow-y-auto" x-cloak>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden transform transition-all my-2" @click.away="openAccountModal = false">
             <div class="bg-emerald-600 p-5 text-white flex items-center justify-between">
                 <div>
                     <h3 class="text-lg font-bold"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Cuenta Corriente</h3>
@@ -229,7 +249,7 @@
                 <button @click="openAccountModal = false" class="text-white hover:text-emerald-100 text-xl"><i class="fa-solid fa-times"></i></button>
             </div>
             
-            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 max-h-[85vh] overflow-y-auto">
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Columna Tabla de Movimientos (2/3 de ancho en pantallas grandes) -->
                 <div class="lg:col-span-2 flex flex-col gap-4">
                     <div class="flex items-center justify-between">

@@ -62,8 +62,10 @@
                     <template x-for="rate in pagedRates" :key="rate.id">
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-semibold" x-text="formatDate(rate.date)"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-black text-brand-blue font-mono"
-                                x-text="'Bs. ' + parseFloat(rate.rate || 0).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })">
+                            <td class="px-6 py-4 whitespace-nowrap text-right font-mono">
+                                <span class="px-2.5 py-1 rounded-md text-[11px] font-bold border inline-block min-w-[70px] text-center bg-sky-50 text-sky-700 border-sky-200/60"
+                                      x-text="'Bs. ' + parseFloat(rate.rate || 0).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })">
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                                 <div class="flex items-center justify-center gap-2">

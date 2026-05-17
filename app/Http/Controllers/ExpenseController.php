@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class ExpenseController extends Controller
 {
@@ -31,7 +32,9 @@ class ExpenseController extends Controller
             'expense_date' => 'required|date',
         ]);
 
-        Expense::create($request->all());
+        $expense = Expense::create($request->all());
+
+        SystemLogService::log('Crear', 'Gastos Operativos', "Se ha registrado un gasto por {$expense->amount} {$expense->currency} ({$expense->description})");
 
         return redirect()->route('expenses.index')->with('success', 'Gasto registrado con éxito.');
     }
@@ -51,6 +54,8 @@ class ExpenseController extends Controller
 
         $expense->update($request->all());
 
+        SystemLogService::log('Editar', 'Gastos Operativos', "Se ha modificado el gasto: {$expense->description}");
+
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -67,7 +72,10 @@ class ExpenseController extends Controller
      */
     public function destroy(Expense $expense)
     {
+        $expenseDesc = $expense->description;
         $expense->delete();
+
+        SystemLogService::log('Eliminar', 'Gastos Operativos', "Se ha eliminado un registro de gasto: {$expenseDesc}");
 
         if (request()->wantsJson()) {
             return response()->json([

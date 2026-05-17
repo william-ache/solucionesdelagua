@@ -36,12 +36,31 @@
                 <span>registros</span>
             </div>
             
-            <!-- Search Box -->
-            <div class="relative w-full md:w-72">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-light bg-white">
+            <!-- Search & Actions -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <!-- Export Buttons -->
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
+                    <button @click="window.exportToExcel(filteredPayments, ['payment_date', 'tax_name', 'reference_number', 'currency', 'amount'], ['Fecha de Pago', 'Concepto Alícuota', 'Número Referencia', 'Moneda', 'Monto Abonado'], 'Impuestos_SolucionesDelAgua')"
+                            type="button"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-gray-300 hover:border-emerald-300 rounded-lg text-xs font-bold transition-all shadow-sm select-none"
+                            title="Exportar registros filtrados a Excel (CSV)">
+                        <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
+                    </button>
+                    <button @click="window.exportToPDF(filteredPayments, ['payment_date', 'tax_name', 'reference_number', 'currency', 'amount'], ['Fecha de Pago', 'Concepto Alícuota', 'Número Referencia', 'Moneda', 'Monto Abonado'], 'Reporte de Impuestos y Tasas SENIAT')"
+                            type="button"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-650 hover:text-red-700 border border-gray-300 hover:border-red-300 rounded-lg text-xs font-bold transition-all shadow-sm select-none"
+                            title="Generar Reporte PDF para imprimir">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i> PDF
+                    </button>
+                </div>
+
+                <!-- Search Box -->
+                <div class="relative w-full sm:w-64 md:w-72">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-light bg-white text-gray-750">
+                </div>
             </div>
         </div>
 
@@ -89,8 +108,19 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" x-text="p.payment_date ? new Date(p.payment_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }) : '-'"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800" x-text="p.tax_name"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550 font-mono" x-text="p.reference_number"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500" x-text="p.currency"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-red-500 font-mono" x-text="(p.currency === 'USD' ? '$' : 'Bs.') + parseFloat(p.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })"></td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1.5 rounded-md text-[10px] font-bold border inline-flex items-center gap-1.5"
+                                      :class="p.currency === 'USD' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60' : 'bg-sky-50 text-sky-700 border-sky-200/60'">
+                                    <i class="fa-solid" :class="p.currency === 'USD' ? 'fa-dollar-sign' : 'fa-coins'"></i>
+                                    <span x-text="p.currency"></span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right font-mono">
+                                <span class="px-2.5 py-1 rounded-md text-[11px] font-bold border inline-block min-w-[70px] text-center"
+                                      :class="p.currency === 'USD' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60' : 'bg-sky-50 text-sky-700 border-sky-200/60'"
+                                      x-text="(p.currency === 'USD' ? '$' : 'Bs.') + parseFloat(p.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                                </span>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-center font-semibold">
                                 <div class="flex items-center justify-center gap-2">
                                     <button @click="$dispatch('open-global-detail', { model: 'tax_payment', id: p.id })" class="text-indigo-600 hover:text-indigo-900 transition-colors bg-indigo-50 hover:bg-indigo-100 p-1.5 rounded-lg" title="Ver Detalles">

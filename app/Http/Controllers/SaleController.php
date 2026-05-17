@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Sale;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class SaleController extends Controller
 {
@@ -29,7 +30,9 @@ class SaleController extends Controller
             'date' => 'required|date',
         ]);
 
-        Sale::create($request->all());
+        $sale = Sale::create($request->all());
+
+        SystemLogService::log('Crear', 'Ventas', "Se ha registrado una nueva venta para {$sale->client_name} por {$sale->total_amount} {$sale->currency}");
 
         return redirect()->route('sales.index')->with('success', 'Venta registrada con éxito.');
     }
@@ -49,6 +52,8 @@ class SaleController extends Controller
 
         $sale->update($request->all());
 
+        SystemLogService::log('Editar', 'Ventas', "Se ha actualizado la información de la venta a cliente {$sale->client_name} (ID: {$sale->id})");
+
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -65,7 +70,11 @@ class SaleController extends Controller
      */
     public function destroy(Sale $sale)
     {
+        $clientName = $sale->client_name;
+        $saleId = $sale->id;
         $sale->delete();
+
+        SystemLogService::log('Eliminar', 'Ventas', "Se ha eliminado una venta del cliente {$clientName} (ID Venta: {$saleId})");
 
         if (request()->wantsJson()) {
             return response()->json([

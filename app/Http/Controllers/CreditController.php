@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Credit;
 use App\Models\CreditPayment;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class CreditController extends Controller
 {
@@ -54,6 +55,8 @@ class CreditController extends Controller
             'payment_method' => $request->payment_method,
         ]);
 
+        SystemLogService::log('Abonar Pago', 'Créditos', "Se registró un abono de {$amountToPay} Bs. sobre el crédito #{$credit->id}. Saldo actual: {$credit->balance_due} Bs.");
+
         return redirect()->route('credits.show', $credit->id)
             ->with('success', 'El abono de pago se registró con éxito y se recalculó el saldo restante.');
     }
@@ -72,6 +75,8 @@ class CreditController extends Controller
 
         $credit->update($request->all());
 
+        SystemLogService::log('Editar', 'Créditos', "Se ha editado el crédito #{$credit->id}");
+
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -88,7 +93,10 @@ class CreditController extends Controller
      */
     public function destroy(Credit $credit)
     {
+        $creditId = $credit->id;
         $credit->delete();
+
+        SystemLogService::log('Eliminar', 'Créditos', "Se eliminó el crédito #{$creditId} y sus abonos");
 
         if (request()->wantsJson()) {
             return response()->json([

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ExpenseCategory;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class ExpenseCategoryController extends Controller
 {
@@ -16,7 +17,9 @@ class ExpenseCategoryController extends Controller
             'name' => 'required|string|max:250|unique:expense_categories,name',
         ]);
 
-        ExpenseCategory::create($request->all());
+        $cat = ExpenseCategory::create($request->all());
+
+        SystemLogService::log('Crear', 'Gastos Operativos', "Se agregó una nueva categoría de gasto: {$cat->name}");
 
         return redirect()->route('expenses.index')->with('success', 'Categoría de gasto creada con éxito.');
     }

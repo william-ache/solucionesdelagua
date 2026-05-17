@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ExchangeRate;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class ExchangeRateController extends Controller
 {
@@ -27,6 +28,8 @@ class ExchangeRateController extends Controller
         ]);
 
         $exchangeRate = ExchangeRate::create($request->all());
+
+        SystemLogService::log('Crear', 'Paridad Cambiaria', "Se actualizó la tasa de BCV oficial a Bs. {$exchangeRate->rate} para el {$exchangeRate->date}");
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -59,6 +62,8 @@ class ExchangeRateController extends Controller
 
         $exchangeRate->update($request->all());
 
+        SystemLogService::log('Editar', 'Paridad Cambiaria', "Se ajustó la tasa histórica del día {$exchangeRate->date} a Bs. {$exchangeRate->rate}");
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -76,7 +81,10 @@ class ExchangeRateController extends Controller
     public function destroy(ExchangeRate $exchangeRate)
     {
         try {
+            $date = $exchangeRate->date;
             $exchangeRate->delete();
+
+            SystemLogService::log('Eliminar', 'Paridad Cambiaria', "Se eliminó el registro de tasa del {$date}");
 
             return response()->json([
                 'success' => true,

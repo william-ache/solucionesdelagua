@@ -29,12 +29,31 @@
                 <span>registros</span>
             </div>
             
-            <!-- Search Box -->
-            <div class="relative w-full md:w-72">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-light bg-white">
+            <!-- Search & Actions -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <!-- Export Buttons -->
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
+                    <button @click="window.exportToExcel(filteredEmployees, ['name', 'identification_number', 'base_salary_usd', 'status'], ['Nombre', 'Cédula / Identificación', 'Salario Base (USD)', 'Estado'], 'Colaboradores_SolucionesDelAgua')"
+                            type="button"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-gray-300 hover:border-emerald-300 rounded-lg text-xs font-bold transition-all shadow-sm select-none"
+                            title="Exportar registros filtrados a Excel (CSV)">
+                        <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
+                    </button>
+                    <button @click="window.exportToPDF(filteredEmployees, ['name', 'identification_number', 'base_salary_usd', 'status'], ['Nombre', 'Cédula / Identificación', 'Salario Base (USD)', 'Estado'], 'Reporte de Colaboradores y Personal')"
+                            type="button"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-650 hover:text-red-700 border border-gray-300 hover:border-red-300 rounded-lg text-xs font-bold transition-all shadow-sm select-none"
+                            title="Generar Reporte PDF para imprimir">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i> PDF
+                    </button>
+                </div>
+
+                <!-- Search Box -->
+                <div class="relative w-full sm:w-64 md:w-72">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Buscar..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-light bg-white text-gray-750">
+                </div>
             </div>
         </div>
 
@@ -76,8 +95,10 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800" x-text="employee.name"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-550 font-mono" x-text="employee.identification_number"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium"
-                                x-text="'$' + parseFloat(employee.base_salary_usd || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                            <td class="px-6 py-4 whitespace-nowrap font-mono">
+                                <span class="px-2.5 py-1 rounded-md text-[11px] font-bold border inline-block min-w-[70px] text-center bg-gray-50 text-gray-700 border-gray-200"
+                                      x-text="'$' + parseFloat(employee.base_salary_usd || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })">
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <span class="px-2.5 py-1 text-xs font-bold rounded-full"

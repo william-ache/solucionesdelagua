@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class EmployeeController extends Controller
 {
@@ -30,6 +31,8 @@ class EmployeeController extends Controller
 
         $employee = Employee::create($request->all());
         $employee->load('payrollPayments');
+
+        SystemLogService::log('Crear', 'Nómina', "Se ha creado el colaborador: {$employee->name} (Documento: {$employee->identification_number})");
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -65,6 +68,8 @@ class EmployeeController extends Controller
         $employee->update($request->all());
         $employee->load('payrollPayments');
 
+        SystemLogService::log('Editar', 'Nómina', "Se ha actualizado la información del colaborador: {$employee->name} (ID: {$employee->id})");
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -89,7 +94,10 @@ class EmployeeController extends Controller
                 ], 422);
             }
 
+            $employeeName = $employee->name;
             $employee->delete();
+
+            SystemLogService::log('Eliminar', 'Nómina', "Se ha eliminado al colaborador del sistema: {$employeeName}");
 
             return response()->json([
                 'success' => true,

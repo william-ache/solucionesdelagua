@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TaxPayment;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class TaxPaymentController extends Controller
 {
@@ -29,7 +30,9 @@ class TaxPaymentController extends Controller
             'reference_number' => 'required|string|max:100',
         ]);
 
-        TaxPayment::create($request->all());
+        $payment = TaxPayment::create($request->all());
+
+        SystemLogService::log('Crear', 'Impuestos', "Se registró un nuevo pago del impuesto: {$payment->tax_name} por {$payment->amount} {$payment->currency}");
 
         return redirect()->route('tax-payments.index')->with('success', 'Pago de impuesto registrado con éxito.');
     }
@@ -49,6 +52,8 @@ class TaxPaymentController extends Controller
 
         $taxPayment->update($request->all());
 
+        SystemLogService::log('Editar', 'Impuestos', "Se ajustó el registro de pago del impuesto: {$taxPayment->tax_name}");
+
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -65,7 +70,10 @@ class TaxPaymentController extends Controller
      */
     public function destroy(TaxPayment $taxPayment)
     {
+        $taxName = $taxPayment->tax_name;
         $taxPayment->delete();
+
+        SystemLogService::log('Eliminar', 'Impuestos', "Se eliminó de los registros el pago del impuesto: {$taxName}");
 
         if (request()->wantsJson()) {
             return response()->json([

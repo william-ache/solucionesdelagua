@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PayrollPayment;
 use Illuminate\Http\Request;
+use App\Services\SystemLogService;
 
 class PayrollPaymentController extends Controller
 {
@@ -20,6 +21,9 @@ class PayrollPaymentController extends Controller
         ]);
 
         $payment = PayrollPayment::create($request->all());
+        $payment->load('employee');
+
+        SystemLogService::log('Abonar Pago', 'Nómina', "Se registró un abono de nómina por {$payment->amount_paid} USD a {$payment->employee->name} ({$payment->concept})");
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
