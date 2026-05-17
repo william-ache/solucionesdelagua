@@ -12,6 +12,8 @@ use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\SystemLogController;
+use App\Http\Controllers\CashClosureController;
+use App\Http\Controllers\ProductController;
 
 // Public and Auth Landing
 Route::get('/', function () {
@@ -73,5 +75,14 @@ Route::middleware(['auth'])->group(function () {
 
     // 7. System Logs (Read Only)
     Route::get('/system-logs', [SystemLogController::class, 'index'])->name('system-logs.index');
+
+    // 8. Cierre de Caja
+    Route::get('/cash-closures/history', [CashClosureController::class, 'history'])->name('cash-closures.history');
+    Route::post('/cash-closures/open', [CashClosureController::class, 'open'])->name('cash-closures.open');
+    Route::post('/cash-closures/{closure}/close', [CashClosureController::class, 'close'])->name('cash-closures.close');
+    Route::get('/api/v1/rates/bcv', [CashClosureController::class, 'getBcvRate'])->name('api.rates.bcv');
+
+    // 9. Inventario (Productos de Limpieza, etc.)
+    Route::resource('products', ProductController::class);
 
 });

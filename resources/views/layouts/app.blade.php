@@ -308,7 +308,7 @@
                                     padding: 0 !important; 
                                     border-radius: 0 !important; 
                                 }
-                            }
+                            }   
                         </style>
                     </head>
                     <body>
@@ -693,10 +693,27 @@
                         <a href="{{ route('dashboard') }}" 
                            class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('dashboard') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
                            :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
-                           title="Dashboard">
-                            <i class="fa-solid fa-chart-line w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'md:text-lg' : ''"></i>
-                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Dashboard</span>
+                           title="Dashboard Panel">
+                            <i class="fa-solid fa-chart-pie w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
+                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Dashboard Panel</span>
                             @if (Route::is('dashboard'))
+                                <!-- Subtle animated background for active item -->
+                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
+                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
+                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
+                                </div>
+                            @endif
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('products.index') }}" 
+                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('products.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
+                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
+                           title="Inventario (Stocks)">
+                            <i class="fa-solid fa-boxes-stacked w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
+                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Inventario / Stocks</span>
+                            @if (Route::is('products.*'))
                                 <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
                                     <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
                                     <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
@@ -793,6 +810,22 @@
                             <i class="fa-solid fa-wallet w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
                             <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Gastos Operativos</span>
                             @if (Route::is('expenses.*'))
+                                <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                                    <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
+                                    <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
+                                    <span class="water-drip w-[2px] h-[6px] bg-brand-light/85 absolute left-[75%] rounded-full" style="animation-delay: 1.4s; animation-duration: 1.7s;"></span>
+                                </div>
+                            @endif
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('cash-closures.history') }}" 
+                           class="flex items-center gap-3 py-3 transition-all duration-200 {{ Route::is('cash-closures.*') ? 'bg-white/10 border-l-4 border-brand-light relative overflow-hidden font-bold' : 'text-gray-200 border-l-4 border-transparent hover:bg-white/5 hover:border-brand-light' }}"
+                           :class="sidebarCollapsed ? 'md:px-0 md:justify-center px-6' : 'px-6'"
+                           title="Cierre de Caja">
+                            <i class="fa-solid fa-cash-register w-5 text-center flex-shrink-0 relative z-10" :class="sidebarCollapsed ? 'text-lg' : ''"></i>
+                            <span :class="sidebarCollapsed ? 'md:hidden' : 'inline'" class="font-sans text-sm font-medium relative z-10">Cierre de Caja</span>
+                            @if (Route::is('cash-closures.*'))
                                 <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
                                     <span class="water-drip w-[2px] h-[7px] bg-brand-light/75 absolute left-[25%] rounded-full"></span>
                                     <span class="water-drip w-[2.5px] h-[9px] bg-brand-light/60 absolute left-[55%] rounded-full" style="animation-delay: 0.7s; animation-duration: 2.3s;"></span>
