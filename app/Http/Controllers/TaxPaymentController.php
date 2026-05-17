@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\TaxPayment;
+use Illuminate\Http\Request;
+
+class TaxPaymentController extends Controller
+{
+    /**
+     * Display a listing of tax payments.
+     */
+    public function index()
+    {
+        $payments = TaxPayment::orderBy('payment_date', 'desc')->get();
+        return view('tax_payments.index', compact('payments'));
+    }
+
+    /**
+     * Store a newly created tax payment.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'tax_name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'currency' => 'required|in:USD,VES',
+            'payment_date' => 'required|date',
+            'reference_number' => 'required|string|max:100',
+        ]);
+
+        TaxPayment::create($request->all());
+
+        return redirect()->route('tax-payments.index')->with('success', 'Pago de impuesto registrado con éxito.');
+    }
+}
